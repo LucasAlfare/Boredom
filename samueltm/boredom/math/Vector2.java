@@ -1,4 +1,4 @@
-﻿package samueltm.boredom.math;
+package samueltm.boredom.math;
 
 import java.util.Objects;
 
