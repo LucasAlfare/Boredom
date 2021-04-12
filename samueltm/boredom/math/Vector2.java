@@ -15,6 +15,7 @@ import java.util.Objects;
  *
  * @author Francisco Lucas, 09 april 2021.
  */
+@SuppressWarnings("All")
 public class Vector2 {
 
     public double x = 0d;
@@ -68,45 +69,45 @@ public class Vector2 {
         return this;
     }
 
-    public double dot(Vector2 v) {
+    public double dot(final Vector2 v) {
         return (this.x * v.x) + (this.y * v.y);
     }
 
-    public double cross(Vector2 v) {
+    public double cross(final Vector2 v) {
         return (this.x * v.y) - (this.y * v.y);
     }
 
-    public Vector2 add(Vector2 v) {
+    public Vector2 add(final Vector2 v) {
         this.x += v.x;
         this.y += v.y;
         return this;
     }
 
-    public Vector2 sub(Vector2 v) {
+    public Vector2 sub(final Vector2 v) {
         this.x -= v.x;
         this.y -= v.y;
         return this;
     }
 
-    public Vector2 scale(double scalar) {
+    public Vector2 scale(final double scalar) {
         this.x *= scalar;
         this.y *= scalar;
         return this;
     }
 
-    public Vector2 scale(Vector2 v) {
+    public Vector2 scale(final Vector2 v) {
         this.x *= v.x;
         this.y *= v.y;
         return this;
     }
 
-    public double distance(Vector2 v) {
+    public double distance(final Vector2 v) {
         final double xDiff = v.x - this.x;
         final double yDiff = v.y - this.y;
         return Math.sqrt((xDiff * xDiff) + (yDiff * yDiff));
     }
 
-    public Vector2 lInterp(Vector2 v, double percentile) {
+    public Vector2 lInterp(final Vector2 v, final double percentile) {
         final double inverse = 1d - percentile;
         this.x = (this.x * inverse) + (v.x * percentile);
         this.y = (this.y * inverse) + (v.y * percentile);
