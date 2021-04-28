@@ -1,4 +1,4 @@
-package samueltm.boredom.math;
+package samueltm.boredom.math.linearalgebra;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -228,7 +228,7 @@ public class Matrix2D {
     @Override
     public int hashCode() {
         int result = Objects.hash(nRows, nColumns);
-        result = 31 * result + Arrays.hashCode(matrix);
+        result = 31 * result + Arrays.deepHashCode(matrix);
         return result;
     }
 
