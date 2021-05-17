@@ -62,8 +62,7 @@ public class Vector2 {
         final double len = eucLen();
 
         if (len > 1d) {
-            x /= len;
-            y /= len;
+            return set(x / len, y / len);
         }
 
         return this;
@@ -78,27 +77,19 @@ public class Vector2 {
     }
 
     public Vector2 add(final Vector2 v) {
-        this.x += v.x;
-        this.y += v.y;
-        return this;
+        return set(x + v.x, y + v.y);
     }
 
     public Vector2 sub(final Vector2 v) {
-        this.x -= v.x;
-        this.y -= v.y;
-        return this;
+        return set(x - v.x, y - v.y);
     }
 
     public Vector2 scale(final double scalar) {
-        this.x *= scalar;
-        this.y *= scalar;
-        return this;
+        return set(x * scalar, y * scalar);
     }
 
     public Vector2 scale(final Vector2 v) {
-        this.x *= v.x;
-        this.y *= v.y;
-        return this;
+        return set(x * v.x, y * v.y);
     }
 
     public double distance(final Vector2 v) {
@@ -109,8 +100,12 @@ public class Vector2 {
 
     public Vector2 lInterp(final Vector2 v, final double percentile) {
         final double inverse = 1d - percentile;
-        this.x = (this.x * inverse) + (v.x * percentile);
-        this.y = (this.y * inverse) + (v.y * percentile);
+        return set((x * inverse) + (v.x * percentile), (y * inverse) + (v.y * percentile));
+    }
+
+    public Vector2 set(double x, double y) {
+        this.x = x;
+        this.y = y;
         return this;
     }
 
