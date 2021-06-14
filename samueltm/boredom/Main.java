@@ -2,34 +2,24 @@ package samueltm.boredom;
 
 
 import samueltm.boredom.math.linearalgebra.Matrix2D;
-import samueltm.boredom.miscellaneous.RandomStuff;
 
-import java.util.Arrays;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Main {
 
     private static Matrix2D generateMatrix(int nRows, int nColumns) {
-        Matrix2D matrix = new Matrix2D(new double[nRows * nColumns], nRows, nColumns);
-        for (int i = 0; i < nRows; i++) {
-            for (int j = 0; j < nColumns; j++) {
-                matrix.getArray()[i][j] = ThreadLocalRandom.current().nextInt(1, 11);
-            }
+        final double[] numbers = new double[nRows * nColumns];
+        for (int i = 0; i < numbers.length; i++) {
+            numbers[i] = ThreadLocalRandom.current().nextInt(1, 11);
         }
-
-        return matrix;
-    }
-
-    private static void testMatrixMultiplicationTime() {
-        Matrix2D a = generateMatrix(1000, 1000);
-        Matrix2D b = generateMatrix(1000, 1000);
-        long startTime = System.nanoTime();
-        a.multiply(b);
-        double timeElapsed = (System.nanoTime() - startTime) / 1e6;
-        System.out.println("Time elapsed: " + timeElapsed + " ms");
+        return new Matrix2D(numbers, nRows, nColumns);
     }
 
     public static void main(String[] args) {
-        System.out.println(Arrays.toString(RandomStuff.generateRandomIntegersBetween(10, 1, 100)));
+        Matrix2D a = generateMatrix(2,3);
+        Matrix2D b = generateMatrix(3,5);
+        System.out.println(a);
+        System.out.println(b);
+        System.out.println(a.multiply(b));
     }
 }

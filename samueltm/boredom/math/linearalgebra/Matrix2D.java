@@ -1,33 +1,31 @@
 package samueltm.boredom.math.linearalgebra;
 
+import samueltm.boredom.miscellaneous.Formatting;
+
 import java.util.Arrays;
 import java.util.Objects;
 
 public class Matrix2D {
 
-    private final double[][] matrix;
+    private final double[] flatMatrix;
     private final int nRows, nColumns;
     private final int[] biggestNumberOfDecimalPlacesInEachColumn;
 
-    public Matrix2D(double[] array, int nRows, int nColumns) {
-        boolean withinBounds = nRows > 0 && nColumns > 0 && nRows <= array.length
-                && nColumns <= array.length;
-        boolean distributable = nRows * nColumns == array.length;
-
+    public Matrix2D(double[] flatMatrix, int nRows, int nColumns) {
+        boolean withinBounds = nRows > 0 && nColumns > 0 && nRows <= flatMatrix.length
+                && nColumns <= flatMatrix.length;
+        boolean distributable = nRows * nColumns == flatMatrix.length;
         if (withinBounds && distributable) {
             this.nRows = nRows;
             this.nColumns = nColumns;
-            matrix = new double[nRows][nColumns];
-            biggestNumberOfDecimalPlacesInEachColumn = new int[nColumns];
-            for (int i = 0; i < nRows; i++) {
-                for (int j = 0; j < nColumns; j++) {
-                    matrix[i][j] = array[i * nColumns + j];
-                    int current = biggestNumberOfDecimalPlacesInEachColumn[j];
-                    int potential = String.valueOf(matrix[i][j]).length();
-                    biggestNumberOfDecimalPlacesInEachColumn[j] = Math.max(potential, current);
-                }
+            this.flatMatrix = flatMatrix;
+            this.biggestNumberOfDecimalPlacesInEachColumn = new int[nColumns];
+            for (int i = 0; i < this.flatMatrix.length; i++) {
+                int currentColIndex = i % this.nColumns;
+                int currentBiggest = biggestNumberOfDecimalPlacesInEachColumn[currentColIndex];
+                int potentialBiggest = Formatting.valueOf(flatMatrix[i]).length();
+                biggestNumberOfDecimalPlacesInEachColumn[currentColIndex] = Math.max(potentialBiggest, currentBiggest);
             }
-
         } else {
             throw new IllegalArgumentException("Unable to build a matrix with the provided parameters");
         }
@@ -37,16 +35,22 @@ public class Matrix2D {
         return new int[]{nRows, nColumns};
     }
 
+    public double getElement(int rowIndex, int colIndex) {
+        if (rowIndex >= 0 && rowIndex < nRows && colIndex >= 0 && colIndex < nColumns) {
+            return flatMatrix[rowIndex * nColumns + colIndex];
+        } else {
+            throw new IndexOutOfBoundsException("One of the provided matrix indices is out of bounds");
+        }
+    }
+
     public Matrix2D sum(Matrix2D b) {
         if (nRows == b.nRows && nColumns == b.nColumns) {
-            Matrix2D result = new Matrix2D(new double[nRows * nColumns], nRows, nColumns);
-            for (int i = 0; i < nRows; i++) {
-                for (int j = 0; j < nColumns; j++) {
-                    result.matrix[i][j] = matrix[i][j] + b.matrix[i][j];
-                }
+            final double[] numbers = new double[flatMatrix.length];
+            for (int i = 0; i < numbers.length; i++) {
+                numbers[i] = flatMatrix[i] + b.flatMatrix[i];
             }
 
-            return result;
+            return new Matrix2D(numbers, nRows, nColumns);
         } else {
             throw new IllegalArgumentException("Matrices must have the same dimensions");
         }
@@ -54,14 +58,25 @@ public class Matrix2D {
 
     public Matrix2D subtract(Matrix2D b) {
         if (nRows == b.nRows && nColumns == b.nColumns) {
-            Matrix2D result = new Matrix2D(new double[nRows * nColumns], nRows, nColumns);
-            for (int i = 0; i < nRows; i++) {
-                for (int j = 0; j < nColumns; j++) {
-                    result.matrix[i][j] = matrix[i][j] - b.matrix[i][j];
-                }
+            final double[] numbers = new double[flatMatrix.length];
+            for (int i = 0; i < numbers.length; i++) {
+                numbers[i] = flatMatrix[i] - b.flatMatrix[i];
             }
 
-            return result;
+            return new Matrix2D(numbers, nRows, nColumns);
+        } else {
+            throw new IllegalArgumentException("Matrices must have the same dimensions");
+        }
+    }
+
+    public Matrix2D haddamard(Matrix2D b) {
+        if (nRows == b.nRows && nColumns == b.nColumns) {
+            final double[] numbers = new double[flatMatrix.length];
+            for (int i = 0; i < numbers.length; i++) {
+                numbers[i] = flatMatrix[i] * b.flatMatrix[i];
+            }
+
+            return new Matrix2D(numbers, nRows, nColumns);
         } else {
             throw new IllegalArgumentException("Matrices must have the same dimensions");
         }
@@ -69,57 +84,54 @@ public class Matrix2D {
 
     public Matrix2D multiply(Matrix2D b) {
         if (nColumns == b.nRows) {
-            Matrix2D result = new Matrix2D(new double[nRows * b.nColumns], nRows, b.nColumns);
-            for (int i = 0; i < nRows; i++) {
-                for (int j = 0; j < b.nColumns; j++) {
-                    double sum = 0;
-                    for (int k = 0; k < b.nRows; k++) {
-                        sum += matrix[i][k] * b.matrix[k][j];
-                    }
-                    result.matrix[i][j] = sum;
+            final double[] numbers = new double[nRows * b.nColumns];
+            for (int i = 0; i < numbers.length; i++) {
+                final int row = i / b.nColumns;
+                final int col = i % b.nColumns;
+                double sum = 0;
+                for (int currentDotProductMultiplication = 0; currentDotProductMultiplication < b.nRows;
+                     currentDotProductMultiplication++) {
+                    sum += getElement(row, currentDotProductMultiplication)
+                            * b.getElement(currentDotProductMultiplication, col);
                 }
+                numbers[i] = sum;
             }
-
-            return result;
+            return new Matrix2D(numbers, nRows, b.nColumns);
         } else {
             throw new IllegalArgumentException("Number of columns in A must be equal to the number of rows in B");
         }
     }
 
     public Matrix2D multiply(double scalar) {
-        Matrix2D result = new Matrix2D(new double[nRows * nColumns], nRows, nColumns);
-        for (int i = 0; i < nRows; i++) {
-            for (int j = 0; j < nColumns; j++) {
-                result.matrix[i][j] = matrix[i][j] * scalar;
-            }
+        final double[] numbers = new double[flatMatrix.length];
+        for (int i = 0; i < numbers.length; i++) {
+            numbers[i] = flatMatrix[i] * scalar;
         }
 
-        return result;
+        return new Matrix2D(numbers, nRows, nColumns);
     }
 
     public Matrix2D transpose() {
-        Matrix2D result = new Matrix2D(new double[nRows * nColumns], nColumns, nRows);
-        for (int i = 0; i < nColumns; i++) {
-            for (int j = 0; j < nRows; j++) {
-                result.matrix[i][j] = matrix[j][i];
-            }
+        final double[] numbers = new double[flatMatrix.length];
+        for (int i = 0; i < numbers.length; i++) {
+            final int row = i / nRows;
+            final int col = i % nRows;
+            numbers[i] = getElement(col, row);
         }
-
-        return result;
+        return new Matrix2D(numbers, nColumns, nRows);
     }
 
     public static Matrix2D identity(int n) {
         if (n > 0) {
-            Matrix2D result = new Matrix2D(new double[n * n], n, n);
-            for (int i = 0; i < result.nRows; i++) {
-                for (int j = 0; j < result.nColumns; j++) {
-                    if (i == j) {
-                        result.matrix[i][j] = 1;
-                    }
+            final double[] numbers = new double[n * n];
+            for (int i = 0; i < numbers.length; i++) {
+                final int row = i / n;
+                final int col = i % n;
+                if (row == col) {
+                    numbers[i] = 1;
                 }
             }
-
-            return result;
+            return new Matrix2D(numbers, n, n);
         } else {
             throw new IllegalArgumentException("Unable to create an identity matrix with the provided value");
         }
@@ -127,84 +139,64 @@ public class Matrix2D {
 
     public Matrix2D zeroPad(int nLayers) {
         if (nLayers > 0) {
-            int newNumberOfRows = nRows + (2 * nLayers);
-            int newNumberOfColumns = nColumns + (2 * nLayers);
-            Matrix2D result = new Matrix2D(new double[newNumberOfRows * newNumberOfColumns], newNumberOfRows,
-                    newNumberOfColumns);
-
-            for (int i = nLayers; i < nRows + nLayers; i++) {
-                for (int j = nLayers; j < nColumns + nLayers; j++) {
-                    result.matrix[i][j] = matrix[i - nLayers][j - nLayers];
+            final int newNumberOfRows = nRows + (2 * nLayers);
+            final int newNumberOfColumns = nColumns + (2 * nLayers);
+            final double[] numbers = new double[newNumberOfRows * newNumberOfColumns];
+            for (int rowIndex = nLayers; rowIndex < nRows + nLayers; rowIndex++) {
+                for (int colIndex = nLayers; colIndex < nColumns + nLayers; colIndex++) {
+                    numbers[rowIndex * newNumberOfColumns + colIndex] =
+                            flatMatrix[(rowIndex - nLayers) * nColumns + (colIndex - nLayers)];
                 }
             }
 
-            return result;
+            return new Matrix2D(numbers, newNumberOfRows, newNumberOfColumns);
         } else {
             throw new IllegalArgumentException("Number of layers must be greater or equal to 1");
         }
     }
 
     public Matrix2D flatten() {
-        final int newNumberOfColumns = nRows * nColumns;
-        final Matrix2D result = new Matrix2D(new double[newNumberOfColumns],1,newNumberOfColumns);
-        int counter = 0;
-        for (int i = 0; i < nRows; i++) {
-            for (int j = 0; j < nColumns; j++) {
-                result.matrix[0][counter] = matrix[i][j];
-            }
-        }
-
-        return result;
+        return new Matrix2D(flatMatrix, 1, nRows * nColumns);
     }
 
     public Matrix2D getRow(int rowIndex) {
-        final Matrix2D result = new Matrix2D(new double[nColumns],1,nColumns);
         if (rowIndex >= 0 && rowIndex < nRows) {
-            for (int column = 0; column < nColumns; column++) {
-                result.matrix[0][column] = matrix[rowIndex][column];
+            final double[] numbers = new double[nColumns];
+            final int startIndex = rowIndex * nColumns;
+            int counter = 0;
+            for (int i = startIndex; i < startIndex + nColumns; i++) {
+                numbers[counter] = flatMatrix[i];
+                counter++;
             }
-            return result;
+
+            return new Matrix2D(numbers, 1, nColumns);
         } else {
             throw new IndexOutOfBoundsException("Row index out of bounds");
         }
     }
 
-    public Matrix2D getColumn(int columnIndex) {
-        final Matrix2D result = new Matrix2D(new double[nRows],nRows,1);
-        if (columnIndex >= 0 && columnIndex < nColumns) {
-            for (int row = 0; row < nRows; row++) {
-                result.matrix[row][0] = matrix[row][columnIndex];
+    public Matrix2D getColumn(int colIndex) {
+        if (colIndex >= 0 && colIndex < nColumns) {
+            final double[] numbers = new double[nRows];
+            final int stopIndex =  (colIndex + (nColumns * (nRows - 1))) + 1;
+            int counter = 0;
+            for (int i = colIndex; i < stopIndex; i+=nColumns) {
+                numbers[counter] = flatMatrix[i];
+                counter++;
             }
-            return result;
+
+            return new Matrix2D(numbers, nRows, 1);
         } else {
             throw new IndexOutOfBoundsException("Column index out of bounds");
         }
     }
 
-    public Matrix2D reshape(int numRows, int numColumns) {
-        return new Matrix2D(flatten().getArray()[0], numRows, numColumns);
-    }
-
-    public double[][] getArray() {
-        return matrix;
+    public Matrix2D reshape(int nRows, int nColumns) {
+        return new Matrix2D(flatMatrix,nRows, nColumns);
     }
 
     public Matrix2D copy() {
-        return new Matrix2D(flatten().getArray()[0], nRows, nColumns);
-    }
-
-    public boolean symmetric() {
-        if (nRows == nColumns) {
-            for (int row = 0; row < nRows; row++) {
-                for (int column = 0; column < nColumns; column++) {
-                    if(matrix[row][column] != matrix[column][row]) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-        return false;
+        return new Matrix2D(flatMatrix, nRows, nColumns);
     }
 
     @Override
@@ -212,56 +204,60 @@ public class Matrix2D {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Matrix2D m = (Matrix2D) o;
-        if (nRows == m.nRows && nColumns == m.nColumns) {
-            for (int row = 0; row < nRows; row++) {
-                for (int column = 0; column < nColumns; column++) {
-                    if (m.matrix[row][column] != matrix[row][column]) {
-                        return false;
-                    }
-                }
-            }
-            return true;
-        }
-        return false;
+        return nRows == m.nRows && nColumns == m.nColumns
+                && Arrays.equals(flatMatrix, m.flatMatrix)
+                && Arrays.equals(biggestNumberOfDecimalPlacesInEachColumn, m.biggestNumberOfDecimalPlacesInEachColumn);
     }
 
     @Override
     public int hashCode() {
         int result = Objects.hash(nRows, nColumns);
-        result = 31 * result + Arrays.deepHashCode(matrix);
+        result = 31 * result + Arrays.hashCode(flatMatrix);
+        result = 31 * result + Arrays.hashCode(biggestNumberOfDecimalPlacesInEachColumn);
         return result;
     }
 
     @Override
     public String toString() {
-        final StringBuilder sb = new StringBuilder();
-        sb.append("[");
-        for (int row = 0; row < nRows; row++) {
-            if (row > 0) {
-                sb.append(" ");
-            }
-            sb.append("[");
-            for (int column = 0; column < nColumns; column++) {
-                final double number = matrix[row][column];
-                String numberString;
-                if (number == (int) number) {
-                    numberString = "" + (int) number;
-                } else {
-                    numberString = "" + number;
+        final StringBuilder sb = new StringBuilder("[");
+        for (int i = 0; i < flatMatrix.length; i++) {
+            final int currentRowIndex = i / nColumns;
+            final int currentColIndex = i % nColumns;
+            final boolean shouldPrintColumn = nColumns < 20 || (currentColIndex < 3 || currentColIndex >= nColumns - 3);
+            final boolean shouldPrintRow = nRows < 20 || (currentRowIndex < 3 || currentRowIndex >= nRows - 3);
+
+            if (shouldPrintRow) {
+                if (currentColIndex == 0) {
+                    if (currentRowIndex > 0) {
+                        sb.append(" ");
+                    }
+                    sb.append("[");
                 }
-                sb.append(String.format("%" + biggestNumberOfDecimalPlacesInEachColumn[column] + "s", numberString));
-                if (column < nColumns - 1) {
-                    sb.append(" ");
+                final double number = flatMatrix[i];
+
+                if (shouldPrintColumn) {
+                    sb.append(String.format("%" + (biggestNumberOfDecimalPlacesInEachColumn[currentColIndex] + 1) + "s",
+                            Formatting.valueOf(number)));
+
+                    if (currentColIndex < nColumns - 1) {
+                        sb.append(" ");
+                    }
+                } else if (currentColIndex == 7) {
+                    sb.append(" ... ");
                 }
-            }
-            sb.append("]");
-            if (row < nRows - 1) {
-                sb.append("\n");
+
+                if (currentColIndex == nColumns - 1) {
+                    sb.append("]");
+
+                    if (currentRowIndex < nRows - 1) {
+                        sb.append("\n");
+                    }
+                }
+            } else if (currentRowIndex == 7 && currentColIndex == 0) {
+                sb.append(" ...\n");
             }
         }
         sb.append("]");
-
         return sb.toString();
     }
-
 }
