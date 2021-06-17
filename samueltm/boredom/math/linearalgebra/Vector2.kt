@@ -99,4 +99,6 @@ class Vector2(var x: Double, var y: Double, var createNewInstances: Boolean = fa
         this.y = y
         return if (newInstance) Vector2(this.x, this.y) else this
     }
+
+    override fun toString() = "[$x, $y]"
 }
