@@ -91,6 +91,27 @@ class Vector2(var x: Double, var y: Double, var createNewInstances: Boolean = fa
     }
 
     /**
+     * Operator overloading as a shortcut for the @{code add} function.
+     */
+    operator fun plus(v: Vector2): Vector2 {
+        return add(v)
+    }
+
+    /**
+     * Operator overloading as a shortcut for the @{code subtract} function.
+     */
+    operator fun minus(v: Vector2): Vector2 {
+        return subtract(v)
+    }
+
+    /**
+     * Operator overloading as a shortcut for the @{code scale(scalar)} function.
+     */
+    operator fun times(scalar: Double): Vector2 {
+        return scale(scalar)
+    }
+
+    /**
      * Helper function to set values and return a instance with the values
      * updated.
      */
