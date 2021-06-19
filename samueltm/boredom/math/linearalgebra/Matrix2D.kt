@@ -3,6 +3,13 @@ package samueltm.boredom.math.linearalgebra
 import samueltm.boredom.miscellaneous.Formatting
 import kotlin.math.max
 
+/**
+ * Class for representing a matrix of any given rational numbers.
+ *
+ * A matrix is a rectangular array of numbers arranged in rows and
+ * columns.
+ */
+@Suppress("MemberVisibilityCanBePrivate")
 class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, private val nColumns: Int) {
     private val biggestNumberOfDecimalPlacesInEachColumn: IntArray
 
@@ -22,6 +29,10 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
+    /**
+     * Returns the element located at the specified row and column
+     * indexes
+     */
     fun getElement(rowIndex: Int, colIndex: Int): Double {
         if (rowIndex in 0 until nRows && colIndex in 0 until nColumns) {
             return flatMatrix[rowIndex * nColumns + colIndex]
@@ -30,6 +41,10 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
+    /**
+     * Returns the sum of the current matrix and the specified one.
+     * Note that both matrices must have the same dimensions
+     */
     fun sum(b: Matrix2D): Matrix2D {
         if (nRows == b.nRows && nColumns == b.nColumns) {
             val numbers = DoubleArray(flatMatrix.size)
@@ -43,6 +58,11 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
+    /**
+     * Returns the difference between the current matrix and the
+     * specified one. Note that both matrices must have the same
+     * dimensions
+     */
     fun subtract(b: Matrix2D): Matrix2D {
         if (nRows == b.nRows && nColumns == b.nColumns) {
             val numbers = DoubleArray(flatMatrix.size)
@@ -56,6 +76,11 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
+    /**
+     * Returns the hadamard product between the current matrix and
+     * the specified one. Note that both matrices must have the same
+     * dimensions
+     */
     fun hadamard(b: Matrix2D): Matrix2D {
         if (nRows == b.nRows && nColumns == b.nColumns) {
             val numbers = DoubleArray(flatMatrix.size)
@@ -69,6 +94,10 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
+    /**
+     * Returns the product between the current matrix and the
+     * specified one
+     */
     fun multiply(b: Matrix2D): Matrix2D {
         if (nColumns == b.nRows) {
             val numbers = DoubleArray(nRows * b.nColumns)
@@ -88,6 +117,10 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
+    /**
+     * Returns a new matrix which is a product of the current one
+     * and the specified scalar
+     */
     fun multiply(scalar: Double): Matrix2D {
         val numbers = DoubleArray(flatMatrix.size)
         for (i in numbers.indices) {
@@ -97,6 +130,9 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         return Matrix2D(numbers, nRows, nColumns)
     }
 
+    /**
+     * Returns the current matrix transposed
+     */
     fun transpose(): Matrix2D {
         val numbers = DoubleArray(flatMatrix.size)
         for (i in numbers.indices) {
@@ -109,15 +145,14 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
     }
 
     companion object {
+        /**
+         * Returns an identity matrix of the given size
+         */
         fun identity(n: Int): Matrix2D {
             if (n > 0) {
-                val numbers = DoubleArray(n * n);
-                for (i in numbers.indices) {
-                    val row = i / n
-                    val col = i % n
-                    if (row == col) {
-                        numbers[i] = 1.0
-                    }
+                val numbers = DoubleArray(n * n)
+                for (i in 0 until n) {
+                    numbers[i * n + i] = 1.0
                 }
 
                 return Matrix2D(numbers, n, n)
@@ -127,6 +162,10 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
+    /**
+     * Returns a new matrix which is the current one surrounded
+     * by a specified number of layers of zeros
+     */
     fun zeroPad(nLayers: Int): Matrix2D {
         if (nLayers > 0) {
             val newNumberOfRows = nRows + (2 * nLayers)
@@ -145,6 +184,10 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
+    /**
+     * Returns a new matrix with the elements from the specified
+     * row of the current one
+     */
     fun getRow(rowIndex: Int): Matrix2D {
         if (rowIndex in 0 until nRows) {
             val numbers = DoubleArray(nColumns)
@@ -159,6 +202,10 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
+    /**
+     * Returns a new matrix with the elements from the specified
+     * column of the current one
+     */
     fun getColumn(colIndex: Int): Matrix2D {
         if (colIndex in 0 until nColumns) {
             val numbers = DoubleArray(nRows)
@@ -173,12 +220,26 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
+    /**
+     * Returns the shape of the current matrix, that is, the
+     * number of rows and columns
+     */
     fun getShape() = intArrayOf(nRows, nColumns)
 
+    /**
+     * Returns a new matrix with all the elements of the current
+     * one but in a single row
+     */
     fun flatten() = Matrix2D(flatMatrix, 1, nRows * nColumns)
 
+    /**
+     * Reforms the matrix into a new one with the given dimensions
+     */
     fun reshape(nRows: Int, nColumns: Int) = Matrix2D(flatMatrix, nRows, nColumns)
 
+    /**
+     * Returns a copy of the new matrix
+     */
     fun copy() = Matrix2D(flatMatrix, nRows, nColumns)
 
     override fun equals(other: Any?): Boolean {

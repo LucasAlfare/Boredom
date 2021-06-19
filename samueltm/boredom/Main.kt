@@ -1,6 +1,7 @@
 package samueltm.boredom
 
 import samueltm.boredom.math.linearalgebra.Matrix2D
+import samueltm.boredom.mymath.MyNumber
 import kotlin.random.Random
 
 fun generateMatrix(nRows: Int, nColumns: Int): Matrix2D {
@@ -12,5 +13,6 @@ fun generateMatrix(nRows: Int, nColumns: Int): Matrix2D {
 }
 
 fun main() {
-    println(generateMatrix(4,3))
+    val n: MyNumber = MyNumber("1.3333...")
+
 }

@@ -2,6 +2,7 @@ package samueltm.boredom.math
 
 import kotlin.math.pow
 
+@Suppress("MemberVisibilityCanBePrivate")
 class CustomOperations {
 
     companion object {
