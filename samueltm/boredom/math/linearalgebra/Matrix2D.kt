@@ -22,10 +22,6 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
-    fun getShape(): IntArray {
-        return intArrayOf(nRows, nColumns)
-    }
-
     fun getElement(rowIndex: Int, colIndex: Int): Double {
         if (rowIndex in 0 until nRows && colIndex in 0 until nColumns) {
             return flatMatrix[rowIndex * nColumns + colIndex]
@@ -149,10 +145,6 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
-    fun flatten(): Matrix2D {
-        return Matrix2D(flatMatrix, 1, nRows * nColumns)
-    }
-
     fun getRow(rowIndex: Int): Matrix2D {
         if (rowIndex in 0 until nRows) {
             val numbers = DoubleArray(nColumns)
@@ -181,13 +173,13 @@ class Matrix2D(private val flatMatrix: DoubleArray, private val nRows: Int, priv
         }
     }
 
-    fun reshape(nRows: Int, nColumns: Int): Matrix2D {
-        return Matrix2D(flatMatrix, nRows, nColumns)
-    }
+    fun getShape() = intArrayOf(nRows, nColumns)
 
-    fun copy(): Matrix2D {
-        return Matrix2D(flatMatrix, nRows, nColumns)
-    }
+    fun flatten() = Matrix2D(flatMatrix, 1, nRows * nColumns)
+
+    fun reshape(nRows: Int, nColumns: Int) = Matrix2D(flatMatrix, nRows, nColumns)
+
+    fun copy() = Matrix2D(flatMatrix, nRows, nColumns)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true;

@@ -7,6 +7,4 @@ class MyNumber(private val stringRep: String) {
             throw IllegalArgumentException("Invalid number")
         }
     }
-
-
 }
